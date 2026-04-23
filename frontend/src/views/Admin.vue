@@ -130,7 +130,7 @@
                 <button
                   class="btn btn-sm btn-danger"
                   @click="confirmDeleteCategory(category)"
-                  :disabled="category.postCount && category.postCount > 0"
+                  :disabled="!!(category.postCount && category.postCount > 0)"
                 >
                   删除
                 </button>
