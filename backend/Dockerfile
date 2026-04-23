@@ -3,7 +3,7 @@ FROM --platform=linux/arm64 node:20-alpine
 WORKDIR /app
 
 COPY package.json package-lock.json* ./
-RUN npm ci --frozen-lockfile
+RUN npm install
 
 COPY . .
 
