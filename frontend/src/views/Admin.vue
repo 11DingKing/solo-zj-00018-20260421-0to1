@@ -1,7 +1,7 @@
 <template>
   <div class="admin-page container">
     <h1 class="page-title mb-4">管理后台</h1>
-    
+
     <div class="tabs flex gap-4 mb-4">
       <button
         class="tab-btn"
@@ -18,9 +18,9 @@
         帖子管理
       </button>
     </div>
-    
+
     <div v-if="error" class="alert alert-error mb-4">{{ error }}</div>
-    
+
     <div v-if="activeTab === 'categories'">
       <div class="card mb-4">
         <div class="card-header">
@@ -74,13 +74,13 @@
                 class="btn btn-primary"
                 :disabled="submittingCategory"
               >
-                {{ submittingCategory ? '添加中...' : '添加板块' }}
+                {{ submittingCategory ? "添加中..." : "添加板块" }}
               </button>
             </div>
           </form>
         </div>
       </div>
-      
+
       <div class="card">
         <div class="card-header">
           <h3>板块列表</h3>
@@ -89,11 +89,14 @@
           <div v-if="loadingCategories" class="loading">
             <div class="spinner"></div>
           </div>
-          
-          <div v-else-if="categories.length === 0" class="text-center text-secondary py-4">
+
+          <div
+            v-else-if="categories.length === 0"
+            class="text-center text-secondary py-4"
+          >
             暂无板块
           </div>
-          
+
           <div v-else class="category-table">
             <div
               v-for="category in categories"
@@ -103,10 +106,17 @@
               <div class="category-info flex-1">
                 <div class="flex items-center gap-2">
                   <strong>{{ category.name }}</strong>
-                  <span class="text-secondary text-sm">({{ category.slug }})</span>
-                  <span class="badge badge-primary">{{ category.postCount || 0 }} 帖子</span>
+                  <span class="text-secondary text-sm"
+                    >({{ category.slug }})</span
+                  >
+                  <span class="badge badge-primary"
+                    >{{ category.postCount || 0 }} 帖子</span
+                  >
                 </div>
-                <p class="text-secondary text-sm mt-1" v-if="category.description">
+                <p
+                  class="text-secondary text-sm mt-1"
+                  v-if="category.description"
+                >
                   {{ category.description }}
                 </p>
               </div>
@@ -129,7 +139,7 @@
           </div>
         </div>
       </div>
-      
+
       <div v-if="editingCategory" class="card mt-4">
         <div class="card-header">
           <h3>编辑板块</h3>
@@ -185,14 +195,14 @@
                 class="btn btn-primary"
                 :disabled="submittingCategory"
               >
-                {{ submittingCategory ? '保存中...' : '保存' }}
+                {{ submittingCategory ? "保存中..." : "保存" }}
               </button>
             </div>
           </form>
         </div>
       </div>
     </div>
-    
+
     <div v-else-if="activeTab === 'posts'">
       <div class="card">
         <div class="card-header">
@@ -202,14 +212,22 @@
               <select
                 v-model="postFilterCategory"
                 class="form-select"
-                style="width: auto;"
+                style="width: auto"
               >
                 <option value="">所有板块</option>
-                <option v-for="cat in categories" :key="cat._id" :value="cat._id">
+                <option
+                  v-for="cat in categories"
+                  :key="cat._id"
+                  :value="cat._id"
+                >
                   {{ cat.name }}
                 </option>
               </select>
-              <select v-model="postFilterSort" class="form-select" style="width: auto;">
+              <select
+                v-model="postFilterSort"
+                class="form-select"
+                style="width: auto"
+              >
                 <option value="latest">最新</option>
                 <option value="hot">最热</option>
               </select>
@@ -226,11 +244,14 @@
           <div v-if="loadingPosts && adminPosts.length === 0" class="loading">
             <div class="spinner"></div>
           </div>
-          
-          <div v-else-if="adminPosts.length === 0" class="text-center text-secondary py-4">
+
+          <div
+            v-else-if="adminPosts.length === 0"
+            class="text-center text-secondary py-4"
+          >
             暂无帖子
           </div>
-          
+
           <div v-else class="posts-table">
             <div
               v-for="post in adminPosts"
@@ -239,11 +260,10 @@
             >
               <div class="post-info flex-1">
                 <div class="flex items-center gap-2">
-                  <span v-if="post.isPinned" class="badge badge-warning">置顶</span>
-                  <router-link
-                    :to="`/posts/${post._id}`"
-                    class="font-medium"
+                  <span v-if="post.isPinned" class="badge badge-warning"
+                    >置顶</span
                   >
+                  <router-link :to="`/posts/${post._id}`" class="font-medium">
                     {{ post.title }}
                   </router-link>
                 </div>
@@ -260,7 +280,7 @@
                   class="btn btn-sm btn-outline"
                   @click="togglePostPin(post)"
                 >
-                  {{ post.isPinned ? '取消置顶' : '置顶' }}
+                  {{ post.isPinned ? "取消置顶" : "置顶" }}
                 </button>
                 <button
                   class="btn btn-sm btn-danger"
@@ -271,11 +291,11 @@
               </div>
             </div>
           </div>
-          
+
           <div v-if="loadingPosts" class="loading mt-4">
             <div class="spinner"></div>
           </div>
-          
+
           <div
             v-if="hasMorePosts && !loadingPosts"
             ref="loadMoreRef"
@@ -288,24 +308,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { categoryAPI, postAPI } from '@/api';
-import type { Category, Post } from '@/types';
+import { ref, watch, onMounted, onUnmounted } from "vue";
+import { categoryAPI, postAPI } from "@/api";
+import type { Category, Post } from "@/types";
 
-const router = useRouter();
+const activeTab = ref<"categories" | "posts">("categories");
 
-const activeTab = ref<'categories' | 'posts'>('categories');
-
-const error = ref('');
+const error = ref("");
 
 const categories = ref<Category[]>([]);
 const loadingCategories = ref(false);
 
 const newCategory = ref({
-  name: '',
-  slug: '',
-  description: '',
+  name: "",
+  slug: "",
+  description: "",
   order: 0,
 });
 
@@ -316,22 +333,22 @@ const adminPosts = ref<Post[]>([]);
 const loadingPosts = ref(false);
 const hasMorePosts = ref(true);
 const nextCursorPosts = ref<string | null>(null);
-const postFilterCategory = ref('');
-const postFilterSort = ref<'latest' | 'hot'>('latest');
+const postFilterCategory = ref("");
+const postFilterSort = ref<"latest" | "hot">("latest");
 
 const loadMoreRef = ref<HTMLElement | null>(null);
 let observer: IntersectionObserver | null = null;
 
 const fetchCategories = async () => {
   loadingCategories.value = true;
-  error.value = '';
-  
+  error.value = "";
+
   try {
     const response = await categoryAPI.getAll();
     categories.value = response.data;
   } catch (e: unknown) {
     const err = e as { response?: { data?: { error?: string } } };
-    error.value = err.response?.data?.error || '加载板块失败';
+    error.value = err.response?.data?.error || "加载板块失败";
   } finally {
     loadingCategories.value = false;
   }
@@ -339,9 +356,9 @@ const fetchCategories = async () => {
 
 const fetchAdminPosts = async (reset = false) => {
   if (loadingPosts.value || (!hasMorePosts.value && !reset)) return;
-  
+
   loadingPosts.value = true;
-  
+
   try {
     const response = await postAPI.getAll({
       categoryId: postFilterCategory.value || undefined,
@@ -349,7 +366,7 @@ const fetchAdminPosts = async (reset = false) => {
       limit: 20,
       before: reset ? undefined : nextCursorPosts.value || undefined,
     });
-    
+
     if (reset) {
       adminPosts.value = response.data.data;
     } else {
@@ -359,7 +376,7 @@ const fetchAdminPosts = async (reset = false) => {
     nextCursorPosts.value = response.data.nextCursor;
   } catch (e: unknown) {
     const err = e as { response?: { data?: { error?: string } } };
-    error.value = err.response?.data?.error || '加载帖子失败';
+    error.value = err.response?.data?.error || "加载帖子失败";
   } finally {
     loadingPosts.value = false;
   }
@@ -367,13 +384,13 @@ const fetchAdminPosts = async (reset = false) => {
 
 const handleAddCategory = async () => {
   if (!newCategory.value.name.trim() || !newCategory.value.slug.trim()) {
-    error.value = '请填写板块名称和标识';
+    error.value = "请填写板块名称和标识";
     return;
   }
-  
+
   submittingCategory.value = true;
-  error.value = '';
-  
+  error.value = "";
+
   try {
     await categoryAPI.create({
       name: newCategory.value.name.trim(),
@@ -381,12 +398,12 @@ const handleAddCategory = async () => {
       description: newCategory.value.description,
       order: newCategory.value.order,
     });
-    
-    newCategory.value = { name: '', slug: '', description: '', order: 0 };
+
+    newCategory.value = { name: "", slug: "", description: "", order: 0 };
     fetchCategories();
   } catch (e: unknown) {
     const err = e as { response?: { data?: { error?: string } } };
-    error.value = err.response?.data?.error || '添加失败，请重试';
+    error.value = err.response?.data?.error || "添加失败，请重试";
   } finally {
     submittingCategory.value = false;
   }
@@ -402,10 +419,10 @@ const cancelEditCategory = () => {
 
 const handleUpdateCategory = async () => {
   if (!editingCategory.value) return;
-  
+
   submittingCategory.value = true;
-  error.value = '';
-  
+  error.value = "";
+
   try {
     await categoryAPI.update(editingCategory.value._id, {
       name: editingCategory.value.name.trim(),
@@ -413,12 +430,12 @@ const handleUpdateCategory = async () => {
       description: editingCategory.value.description,
       order: editingCategory.value.order,
     });
-    
+
     editingCategory.value = null;
     fetchCategories();
   } catch (e: unknown) {
     const err = e as { response?: { data?: { error?: string } } };
-    error.value = err.response?.data?.error || '更新失败，请重试';
+    error.value = err.response?.data?.error || "更新失败，请重试";
   } finally {
     submittingCategory.value = false;
   }
@@ -426,24 +443,24 @@ const handleUpdateCategory = async () => {
 
 const confirmDeleteCategory = (category: Category) => {
   if (category.postCount && category.postCount > 0) {
-    error.value = '该板块下有帖子，无法删除';
+    error.value = "该板块下有帖子，无法删除";
     return;
   }
-  
+
   if (window.confirm(`确定要删除板块"${category.name}"吗？`)) {
     deleteCategory(category._id);
   }
 };
 
 const deleteCategory = async (categoryId: string) => {
-  error.value = '';
-  
+  error.value = "";
+
   try {
     await categoryAPI.delete(categoryId);
     fetchCategories();
   } catch (e: unknown) {
     const err = e as { response?: { data?: { error?: string } } };
-    error.value = err.response?.data?.error || '删除失败，请重试';
+    error.value = err.response?.data?.error || "删除失败，请重试";
   }
 };
 
@@ -453,7 +470,7 @@ const togglePostPin = async (post: Post) => {
     post.isPinned = !post.isPinned;
   } catch (e: unknown) {
     const err = e as { response?: { data?: { error?: string } } };
-    error.value = err.response?.data?.error || '操作失败，请重试';
+    error.value = err.response?.data?.error || "操作失败，请重试";
   }
 };
 
@@ -464,20 +481,20 @@ const confirmDeletePost = (post: Post) => {
 };
 
 const deletePost = async (postId: string) => {
-  error.value = '';
-  
+  error.value = "";
+
   try {
     await postAPI.delete(postId);
-    adminPosts.value = adminPosts.value.filter(p => p._id !== postId);
+    adminPosts.value = adminPosts.value.filter((p) => p._id !== postId);
   } catch (e: unknown) {
     const err = e as { response?: { data?: { error?: string } } };
-    error.value = err.response?.data?.error || '删除失败，请重试';
+    error.value = err.response?.data?.error || "删除失败，请重试";
   }
 };
 
 const formatDate = (dateStr: string) => {
   const date = new Date(dateStr);
-  return date.toLocaleDateString('zh-CN');
+  return date.toLocaleDateString("zh-CN");
 };
 
 watch([postFilterCategory, postFilterSort], () => {
@@ -489,15 +506,19 @@ watch([postFilterCategory, postFilterSort], () => {
 
 onMounted(async () => {
   await fetchCategories();
-  
+
   if (loadMoreRef.value) {
     observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasMorePosts.value && !loadingPosts.value) {
+        if (
+          entries[0].isIntersecting &&
+          hasMorePosts.value &&
+          !loadingPosts.value
+        ) {
           fetchAdminPosts(false);
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
     observer.observe(loadMoreRef.value);
   }

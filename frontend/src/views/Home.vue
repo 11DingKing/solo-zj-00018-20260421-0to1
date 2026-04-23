@@ -108,7 +108,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { useUserStore } from '@/stores/user';
 import { categoryAPI, postAPI } from '@/api';
 import type { Category, Post } from '@/types';

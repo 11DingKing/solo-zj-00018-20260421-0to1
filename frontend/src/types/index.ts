@@ -42,15 +42,13 @@ export interface Post {
 export interface Reply {
   _id: string;
   postId: string;
-  userId: string;
+  userId: Author;
   parentId?: string;
-  replyToUserId?: string;
+  replyToUserId?: Author;
   content: string;
   likeCount: number;
   createdAt: string;
   updatedAt: string;
-  userId?: Author;
-  replyToUserId?: Author;
   children?: Reply[];
 }
 
