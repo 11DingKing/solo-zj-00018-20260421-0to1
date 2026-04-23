@@ -310,6 +310,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, onUnmounted } from "vue";
 import { categoryAPI, postAPI } from "@/api";
+import { formatDate } from "@/utils/date";
 import type { Category, Post } from "@/types";
 
 const activeTab = ref<"categories" | "posts">("categories");
@@ -490,11 +491,6 @@ const deletePost = async (postId: string) => {
     const err = e as { response?: { data?: { error?: string } } };
     error.value = err.response?.data?.error || "删除失败，请重试";
   }
-};
-
-const formatDate = (dateStr: string) => {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString("zh-CN");
 };
 
 watch([postFilterCategory, postFilterSort], () => {

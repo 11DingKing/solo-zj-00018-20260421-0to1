@@ -7,7 +7,7 @@
             <div class="avatar-placeholder text-4xl mb-4">👤</div>
             <h2 class="text-xl font-bold">{{ userStore.user?.username }}</h2>
             <p class="text-secondary text-sm mt-2">
-              注册时间: {{ formatDate(userStore.user?.createdAt || '') }}
+              注册时间: {{ formatDateShort(userStore.user?.createdAt) }}
             </p>
             <p class="text-secondary text-sm mt-1" v-if="userStore.isAdmin">
               <span class="badge badge-warning">管理员</span>
@@ -15,7 +15,7 @@
           </div>
         </div>
       </aside>
-      
+
       <main class="main-section">
         <div class="card">
           <div class="card-header">
@@ -36,17 +36,20 @@
               </button>
             </div>
           </div>
-          
+
           <div class="card-body">
             <div v-if="activeTab === 'posts'">
               <div v-if="loadingPosts && posts.length === 0" class="loading">
                 <div class="spinner"></div>
               </div>
-              
-              <div v-else-if="posts.length === 0" class="text-center text-secondary py-4">
+
+              <div
+                v-else-if="posts.length === 0"
+                class="text-center text-secondary py-4"
+              >
                 暂无帖子
               </div>
-              
+
               <div v-else>
                 <div
                   v-for="post in posts"
@@ -60,8 +63,12 @@
                     >
                       {{ post.title }}
                     </router-link>
-                    <div class="post-meta flex items-center gap-4 text-sm text-secondary mt-2">
-                      <span class="badge badge-primary">{{ post.category?.name }}</span>
+                    <div
+                      class="post-meta flex items-center gap-4 text-sm text-secondary mt-2"
+                    >
+                      <span class="badge badge-primary">{{
+                        post.category?.name
+                      }}</span>
                       <span>回复: {{ post.replyCount }}</span>
                       <span>点赞: {{ post.likeCount }}</span>
                       <span>浏览: {{ post.viewCount }}</span>
@@ -69,11 +76,11 @@
                     </div>
                   </div>
                 </div>
-                
+
                 <div v-if="loadingPosts" class="loading">
                   <div class="spinner"></div>
                 </div>
-                
+
                 <div
                   v-if="hasMorePosts && !loadingPosts"
                   ref="loadMorePostsRef"
@@ -81,16 +88,22 @@
                 ></div>
               </div>
             </div>
-            
+
             <div v-else-if="activeTab === 'replies'">
-              <div v-if="loadingReplies && replies.length === 0" class="loading">
+              <div
+                v-if="loadingReplies && replies.length === 0"
+                class="loading"
+              >
                 <div class="spinner"></div>
               </div>
-              
-              <div v-else-if="replies.length === 0" class="text-center text-secondary py-4">
+
+              <div
+                v-else-if="replies.length === 0"
+                class="text-center text-secondary py-4"
+              >
                 暂无回复
               </div>
-              
+
               <div v-else>
                 <div
                   v-for="reply in replies"
@@ -105,16 +118,18 @@
                       >
                         查看原帖
                       </router-link>
-                      <span class="text-xs text-secondary">{{ formatDate(reply.createdAt) }}</span>
+                      <span class="text-xs text-secondary">{{
+                        formatDate(reply.createdAt)
+                      }}</span>
                     </div>
                     <p class="reply-content">{{ reply.content }}</p>
                   </div>
                 </div>
-                
+
                 <div v-if="loadingReplies" class="loading">
                   <div class="spinner"></div>
                 </div>
-                
+
                 <div
                   v-if="hasMoreReplies && !loadingReplies"
                   ref="loadMoreRepliesRef"
@@ -130,14 +145,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted } from 'vue';
-import { useUserStore } from '@/stores/user';
-import { postAPI, replyAPI } from '@/api';
-import type { Post, Reply } from '@/types';
+import { ref, watch, onMounted, onUnmounted } from "vue";
+import { useUserStore } from "@/stores/user";
+import { postAPI, replyAPI } from "@/api";
+import { formatDate, formatDateShort } from "@/utils/date";
+import type { Post, Reply } from "@/types";
 
 const userStore = useUserStore();
 
-const activeTab = ref<'posts' | 'replies'>('posts');
+const activeTab = ref<"posts" | "replies">("posts");
 
 const posts = ref<Post[]>([]);
 const replies = ref<Reply[]>([]);
@@ -159,15 +175,15 @@ let repliesObserver: IntersectionObserver | null = null;
 
 const fetchMyPosts = async (reset = false) => {
   if (loadingPosts.value || (!hasMorePosts.value && !reset)) return;
-  
+
   loadingPosts.value = true;
-  
+
   try {
     const response = await postAPI.getMy({
       limit: 20,
       before: reset ? undefined : nextCursorPosts.value || undefined,
     });
-    
+
     if (reset) {
       posts.value = response.data.data;
     } else {
@@ -176,7 +192,7 @@ const fetchMyPosts = async (reset = false) => {
     hasMorePosts.value = response.data.hasMore;
     nextCursorPosts.value = response.data.nextCursor;
   } catch (error) {
-    console.error('Failed to fetch my posts:', error);
+    console.error("Failed to fetch my posts:", error);
   } finally {
     loadingPosts.value = false;
   }
@@ -184,15 +200,15 @@ const fetchMyPosts = async (reset = false) => {
 
 const fetchMyReplies = async (reset = false) => {
   if (loadingReplies.value || (!hasMoreReplies.value && !reset)) return;
-  
+
   loadingReplies.value = true;
-  
+
   try {
     const response = await replyAPI.getMy({
       limit: 20,
       before: reset ? undefined : nextCursorReplies.value || undefined,
     });
-    
+
     if (reset) {
       replies.value = response.data.data;
     } else {
@@ -201,48 +217,51 @@ const fetchMyReplies = async (reset = false) => {
     hasMoreReplies.value = response.data.hasMore;
     nextCursorReplies.value = response.data.nextCursor;
   } catch (error) {
-    console.error('Failed to fetch my replies:', error);
+    console.error("Failed to fetch my replies:", error);
   } finally {
     loadingReplies.value = false;
   }
 };
 
-const formatDate = (dateStr: string) => {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString('zh-CN');
-};
-
 watch(activeTab, (newTab) => {
-  if (newTab === 'posts' && posts.value.length === 0) {
+  if (newTab === "posts" && posts.value.length === 0) {
     fetchMyPosts(true);
-  } else if (newTab === 'replies' && replies.value.length === 0) {
+  } else if (newTab === "replies" && replies.value.length === 0) {
     fetchMyReplies(true);
   }
 });
 
 onMounted(() => {
   fetchMyPosts(true);
-  
+
   if (loadMorePostsRef.value) {
     postsObserver = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasMorePosts.value && !loadingPosts.value) {
+        if (
+          entries[0].isIntersecting &&
+          hasMorePosts.value &&
+          !loadingPosts.value
+        ) {
           fetchMyPosts(false);
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
     postsObserver.observe(loadMorePostsRef.value);
   }
-  
+
   if (loadMoreRepliesRef.value) {
     repliesObserver = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasMoreReplies.value && !loadingReplies.value) {
+        if (
+          entries[0].isIntersecting &&
+          hasMoreReplies.value &&
+          !loadingReplies.value
+        ) {
           fetchMyReplies(false);
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
     repliesObserver.observe(loadMoreRepliesRef.value);
   }
@@ -357,7 +376,7 @@ onUnmounted(() => {
   .page-layout {
     flex-direction: column;
   }
-  
+
   .sidebar {
     width: 100%;
   }
